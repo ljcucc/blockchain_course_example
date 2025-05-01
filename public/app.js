@@ -1,5 +1,5 @@
 // 合約地址和ABI
-const contractAddress = "0x149AE5AC3f137dA3B0E5C2dA45318511051C1518"; // 替換為您的合約地址
+const contractAddress = "0xC295B4509C59A930052d57815B3C6C9fC282280A"; // 替換為您的合約地址
 
 // 合約ABI（從Remix編譯後獲取）
 const contractABI = [
