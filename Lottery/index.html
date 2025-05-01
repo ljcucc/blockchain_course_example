@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>一番讚抽獎系統</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+    <script src="app.js" defer></script>
+</head>
+<body>
+    <h1>一番讚抽獎系統</h1>
+    
+    <div class="card">
+        <h2>連接錢包</h2>
+        <button id="connectButton">連接MetaMask</button>
+        <p id="accountArea">未連接</p>
+    </div>
+    
+    <div class="card">
+        <h2>抽獎資訊</h2>
+        <p>合約地址: <span id="contractAddress"></span></p>
+        <p>抽獎狀態: <span id="lotteryStatus">載入中...</span></p>
+        <p>總票數: <span id="totalTickets">載入中...</span></p>
+        <p>已售票數: <span id="soldTickets">載入中...</span></p>
+        <p>獎品數量: <span id="prizeCount">載入中...</span></p>
+        <button id="refreshButton">重新整理資訊</button>
+    </div>
+    
+    <div class="card">
+        <h2>購買抽獎票</h2>
+        <p>票價: <span id="ticketPrice">載入中...</span> ETH</p>
+        <p>我的票數: <span id="myTickets">載入中...</span></p>
+        <label for="ticketAmount">購買數量:</label>
+        <input type="number" id="ticketAmount" min="1" value="1">
+        <button id="purchaseButton">購買票</button>
+        <p class="status" id="purchaseStatus"></p>
+    </div>
+    
+    <div class="card">
+        <h2>進行抽獎</h2>
+        <button id="drawButton">抽獎</button>
+        <p class="status" id="drawStatus"></p>
+    </div>
+
+    <div class="card">
+        <h2>獎品列表</h2>
+        <div id="prizeList">載入中...</div>
+    </div>
+</body>
+</html>
