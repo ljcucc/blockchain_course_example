@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.17; //指定了使用的Solidity語言版本
 
-import "@openzeppelin/contracts/access/Ownable.sol"; //提供基本的擁有者權限控制功能
+import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
  * @title IchibanKuji
@@ -54,6 +54,9 @@ contract IchibanKuji is Ownable {  //繼承Ownable合約
     event DrawFulfilled(address indexed user, uint256 requestId, uint256 prizeId);  //當抽獎請求完成時觸發
     event PrizeDistributed(address indexed winner, uint256 amount, uint256 prizeId);  //當獎品分發給獲獎者時觸發
 
+    // [新增的代碼]
+    uint256[] private availablePrizeIds;
+
 
      //構造函數在合約部署時執行
     constructor(
@@ -87,6 +90,11 @@ contract IchibanKuji is Ownable {  //繼承Ownable合約
         }));
 
         emit PrizeAdded(prizes.length - 1, _name, _amount, _quantity, _rank);
+
+        // [新增的代碼]
+        if (_quantity > 0) {
+            availablePrizeIds.push(prizes.length - 1);
+        }
     }
 
     /**
@@ -181,6 +189,17 @@ contract IchibanKuji is Ownable {  //繼承Ownable合約
         // 減少獎品的剩餘數量
         prizes[prizeId].remaining--;
 
+        // [新增的代碼] 如果獎品用完，從可用獎品列表中移除
+        if (prizes[prizeId].remaining == 0) {
+            for (uint256 i = 0; i < availablePrizeIds.length; i++) {
+                if (availablePrizeIds[i] == prizeId) {
+                    availablePrizeIds[i] = availablePrizeIds[availablePrizeIds.length - 1];
+                    availablePrizeIds.pop();
+                    break;
+                }
+            }
+        }
+
         // 將ETH獎品轉給獲獎者
         uint256 prizeAmount = prizes[prizeId].amount;
         payable(request.user).transfer(prizeAmount);
@@ -199,34 +218,39 @@ contract IchibanKuji is Ownable {  //繼承Ownable合約
      * @dev 檢查是否還有獎品剩餘
      */
     function hasPrizesRemaining() public view returns (bool) {
-        for (uint256 i = 0; i < prizes.length; i++) {
-            if (prizes[i].remaining > 0) {
-                return true;
-            }
-        }
-        return false;
+        return availablePrizeIds.length > 0;
     }
 
     /**
      * @dev 根據隨機數選擇獎品
      * @param randomness 隨機數
      */
+
+    // function selectPrize(uint256 randomness) internal view returns (uint256) {
+    //     // 創建一個獎品池，只包含剩餘數量大於0的獎品
+    //     uint256[] memory availablePrizes = new uint256[](prizes.length);
+    //     uint256 availableCount = 0;
+
+    //     for (uint256 i = 0; i < prizes.length; i++) {
+    //         if (prizes[i].remaining > 0) {
+    //             availablePrizes[availableCount] = i;
+    //             availableCount++;
+    //         }
+    //     }
+
+    //     // 選擇一個隨機獎品
+    //     uint256 selectedIndex = randomness % availableCount;
+    //     return availablePrizes[selectedIndex];
+    // }
+
+     // [新增的代碼]
     function selectPrize(uint256 randomness) internal view returns (uint256) {
-        // 創建一個獎品池，只包含剩餘數量大於0的獎品
-        uint256[] memory availablePrizes = new uint256[](prizes.length);
-        uint256 availableCount = 0;
-
-        for (uint256 i = 0; i < prizes.length; i++) {
-            if (prizes[i].remaining > 0) {
-                availablePrizes[availableCount] = i;
-                availableCount++;
-            }
-        }
-
-        // 選擇一個隨機獎品
-        uint256 selectedIndex = randomness % availableCount;
-        return availablePrizes[selectedIndex];
+        require(availablePrizeIds.length > 0, "No prizes available");
+        uint256 selectedIndex = randomness % availablePrizeIds.length;
+        return availablePrizeIds[selectedIndex];
     }
+
+
 
     /**
      * @dev 獲取獎品資訊
